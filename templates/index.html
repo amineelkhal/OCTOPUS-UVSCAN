@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camera Grabber</title>
+</head>
+<body>
+
+<button id="grabButton">Grab Images</button>
+<div id="imagesContainer"></div>
+
+<script>
+    document.getElementById('grabButton').addEventListener('click', function() {
+        fetch('/grab_images', {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.status === 'success') {
+                let imagesContainer = document.getElementById('imagesContainer');
+                imagesContainer.innerHTML = '';  // Clear previous images
+
+                data.images.forEach(imagePath => {
+                    let img = document.createElement('img');
+                    img.src = imagePath;
+                    img.alt = "Captured Image";
+                    img.style.margin = '0';
+                    img.style.border = '1px solid red';
+                    imagesContainer.appendChild(img);
+                });
+            } else {
+                alert(data.message);
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

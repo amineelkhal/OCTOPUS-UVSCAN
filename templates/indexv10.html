@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Camera Control</title>
+    <script src="static/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h2>Image Adjustments</h2>
+    <form id="adjustmentForm">
+        Contrast: 
+        <span id="contrastValue">1.0</span>
+        <input type="range" min="0" max="3" step="0.1" name="contrast" value="1.0" onchange="document.getElementById('contrastValue').innerText = this.value;"><br>
+        Brightness: 
+        <span id="brightnessValue">0</span>
+        <input type="range" min="-100" max="100" name="brightness" value="0" onchange="document.getElementById('brightnessValue').innerText = this.value;"><br>
+        Histogram Equalization Intensity: 
+        <span id="hist_eq_intensityValue">0.5</span>
+        <input type="range" min="0" max="1" step="0.1" name="hist_eq_intensity" value="0.5" onchange="document.getElementById('hist_eq_intensityValue').innerText = this.value;"><br>
+        <input type="button" value="Grab Images (Or Press Space)" onclick="submitForm()">
+    </form>
+    <div id="result"></div>
+    <script>
+        $(document).ready(function() {
+            // Submit the form using the space key
+            $(document).keydown(function(event) {
+                if (event.which == 32) {
+                    submitForm();
+                }
+            });
+
+            $('#adjustmentForm').submit(function(event) {
+                event.preventDefault();
+                startGrabbing();
+            });
+        });
+
+        function submitForm() {
+            $('#adjustmentForm').submit();
+        }
+
+        function startGrabbing() {
+            console.log("Start Grabbing");
+            $.ajax({
+                url: '/grab_images',
+                method: 'POST',
+                data: $('#adjustmentForm').serialize(),
+                success: function(response) {
+                    if (response.status === 'success') {
+                        $('#result').html('<img height="400" src="' + response.image + '" alt="Captured Image" />');
+                    } else {
+                        $('#result').text(response.message);
+                    }
+                    console.log("Finish");
+                },
+                error: function() {
+                    $('#result').text('An error occurred while processing the request.');
+                    console.log("Finish");
+                }
+            });
+        }
+    </script>
+</body>
+</html>

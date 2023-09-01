@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Grabber</title>
+    <script src="/static/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <button id="grabBtn">Grab Images</button>
+    <img id="resultImage" src="" alt="Resulting image" style="display:none;">
+
+    <script>
+        document.addEventListener('keydown', function(event) {
+            if (event.code === 'Space') {
+                console.log("Grabbing..")
+                grabImages();
+            }
+        });
+
+        function grabImages() {
+            $.post("/grab_images", function(data) {
+                if (data.status === 'success') {
+                    document.getElementById("resultImage").src = data.image;
+                    document.getElementById("resultImage").style.display = "block";
+                } else {
+                    alert(data.message);
+                }
+            });
+        }
+
+        document.getElementById('grabBtn').addEventListener('click', grabImages);
+    </script>
+</body>
+</html>

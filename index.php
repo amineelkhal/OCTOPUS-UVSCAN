@@ -121,7 +121,12 @@
     <link rel="stylesheet" href="assets/css/viewer.min.css">
     <script src="assets/js/viewer.min.js"></script>
     <script>
-        isDemo = true;
+        <?php
+        $isDemo = "true";
+        if (isset($_GET['isdemo']))
+            $isDemo = $_GET['isdemo'];
+        ?>
+        isDemo = <?= $isDemo ?>;
 
         scanLoop1 = 'off';
         scanLoop2 = 'off';
@@ -138,6 +143,20 @@
         $(document).ready(function() {
             entrancesTable = $('#entrancesTable').DataTable({
                 "ajax": "fetch_entrances.php",
+                dom: 'Bfrtip',
+                buttons: [{
+                        extend: 'excelHtml5',
+                        exportOptions: {
+                            columns: [0, 1, 3, 4, 5]
+                        }
+                    },
+                    {
+                        text: 'Export to PDF',
+                        action: function(e, dt, node, config) {
+                            window.open('export_pdf_entrances.php', '_blank');
+                        }
+                    }
+                ],
                 "columns": [{
                         "data": "id"
                     },
@@ -152,15 +171,13 @@
                         "render": function(data, type, row) {
                             const miniaturePath = row.picture ? row.picture + '.png' : null;
                             // Combine all images in a container for that row
-                            return `
-            <div class="image-slideshow-container" onclick="startSlideshow(this)">
+                            return `<div class="image-slideshow-container" onclick="startSlideshow(this)">
                 <img src="${row.picture}" alt="Picture" class="img-thumbnail">
                 <hr>
                 <img src="${row.scan}" alt="Scan" class="img-thumbnail">
                 <hr>
                 <img src="${miniaturePath}" alt="Scan" class="img-thumbnail">
-            </div>
-        `;
+            </div>`;
                         }
                     },
                     {
@@ -192,7 +209,8 @@
                         "render": function(data, type, row) {
                             return `
                             <button class="btn btn-primary" onclick="showHistory('${row.plate}')">Show History</button><hr>
-                            <button class="btn btn-secondary" onclick="editPlate('${row.id}', '${row.plate}', '${row.picture}')">Edit Plate</button>`;
+                            <button class="btn btn-secondary" onclick="editPlate('${row.id}', '${row.plate}', '${row.picture}')">Edit Plate</button><hr>
+                            <button class="btn btn-danger" onclick="deleteLine(${row.id})">Delete</button>`;
                         },
                         "orderable": false, // Disable sorting for this column
                         "searchable": false // Disable searching for this column
@@ -206,9 +224,9 @@
 
         });
 
+        //SHOW SCAN IMAGES SLIDESHOW ON CLICK ON A SINGLE IMAGE
         let viewer;
 
-        //SHOW SCAN IMAGES SLIDESHOW ON CLICK ON A SINGLE IMAGE
         function startSlideshow(container) {
             if (viewer) {
                 viewer.destroy();
@@ -221,7 +239,8 @@
             viewer.show();
         }
 
-        let historyDataTable; // This will hold the reference to the DataTable instance
+        //SHOW SLIDESHOW ON CLICK ON "ShowHistory" BUTTON
+        let historyDataTable;
 
         function showHistory(plate) {
             $.ajax({
@@ -273,6 +292,9 @@
                             {
                                 "data": "entry_date"
                             }
+                        ],
+                        "order": [
+                            [5, 'desc']
                         ]
                     });
 
@@ -304,15 +326,6 @@
             // Display the modal
             $('#slideshowModal').modal('show');
         }
-
-        function refreshDataTable() {
-            entrancesTable.ajax.reload(); // Use the stored reference to reload the table.
-        }
-
-        // Setup the refresh interval here
-        setInterval(function() {
-            //entrancesTable.ajax.reload(null, false); // Update the reference to use the renamed variable.
-        }, 2000);
 
         function SimulateLPR() {
             $.get('snaplpr.php?ip=10.10.3.12', function(path) {
@@ -461,7 +474,8 @@
                 .then((willDelete) => {
                     if (willDelete) {
                         $.get("delete.php?id=" + id, function() {
-                            table.row($("#entry-" + id)).remove().draw(false);
+                            //table.row($("#entry-" + id)).remove().draw(false);
+                            //refreshDataTable();
                             swal("Entrance deleted", {
                                 icon: "success",
                             });
@@ -560,7 +574,7 @@
                     plate: plateValue
                 },
                 success: function(response) {
-                    console.log(response);
+                    //console.log(response);
                     alert("Update done");
                     $('#editPlateModal').modal('hide');
                 },
@@ -585,7 +599,7 @@
                 success: function(response) {
                     if (response.success) {
                         // If successfully updated, you can reload the table or update the specific row
-                        entrancesTable.ajax.reload();
+                        //entrancesTable.ajax.reload();
                         $('#editPlateModal').modal('hide');
                     } else {
                         // Handle any errors from the server
@@ -598,6 +612,13 @@
                 }
             });
         }
+
+        $(document).on('click', '.close, button[data-dismiss=modal]', function() {
+            $(this).closest('.modal').modal('hide'); // Close parent modal
+        });
+
+        //REFRESH DATATABLE ON CHANGE DETECTED ON DATABASE
+        let lastKnownUpdate;
 
         function fetchStatistics() {
             $.ajax({
@@ -615,10 +636,25 @@
             });
         }
 
-        $(document).on('click', '.close', function() {
-            $(this).closest('.modal').modal('hide'); // Close parent modal
-        });
+        function refreshDataTable() {
+            entrancesTable.ajax.reload(); // Use the stored reference to reload the table.
+            fetchStatistics();
+        }
 
+        function checkForUpdates() {
+            $.getJSON('check_updates.php', function(data) {
+                if (!lastKnownUpdate) {
+                    lastKnownUpdate = data.last_updated;
+                } else if (lastKnownUpdate !== data.last_updated) {
+                    lastKnownUpdate = data.last_updated;
+                    refreshDataTable();
+                    console.log('Refreshing data...');
+                }
+            });
+        }
+
+        // Poll every 30 seconds (adjust as necessary).
+        setInterval(checkForUpdates, 3000);
     </script>
 </body>
 

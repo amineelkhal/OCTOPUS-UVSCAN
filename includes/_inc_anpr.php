@@ -69,9 +69,9 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="col">
-                                <h6 class="">Total Vehicles</h6>
+                                <h6 class="">Total Vehicles Today</h6>
                                 <h3 id="today_count" class="mb-2 number-font">---</h3>
-                                <h6 class="">This month</h6>
+                                <h6 class="">Total Vehicles This month</h6>
                                 <h3 id="month_count" class="mb-2 number-font">---</h3>
                             </div>
                             <div class="col col-auto">

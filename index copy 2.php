@@ -80,14 +80,14 @@
                                                     <tr>
                                                         <th>ID</th>
                                                         <th>Scanner</th>
-                                                        <th>Scanning Results</th>
                                                         <th>Plate</th>
-                                                        <!--<th>Picture</th>-->
-                                                        <!--<th>Scan</th>-->
-                                                        <!--<th>Plate Miniature</th>-->
+                                                        <th>Picture</th>
+                                                        <th>Scan</th>
+                                                        <th>Plate Miniature</th>
                                                         <th>Details</th>
                                                         <th>Entry Date</th>
                                                         <th>Action</th>
+                                                        <th>Scanning Results</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -148,25 +148,29 @@
                         }
                     },
                     {
-                        "data": null,
-                        "render": function(data, type, row) {
-                            const miniaturePath = row.picture ? row.picture + '.png' : null;
-                            // Combine all images in a container for that row
-                            return `
-            <div class="image-slideshow-container" onclick="startSlideshow(this)">
-                <img src="${row.picture}" alt="Picture" class="img-thumbnail">
-                <hr>
-                <img src="${row.scan}" alt="Scan" class="img-thumbnail">
-                <hr>
-                <img src="${miniaturePath}" alt="Scan" class="img-thumbnail">
-            </div>
-        `;
-                        }
-                    },
-                    {
                         "data": "plate",
                         "render": function(data, type, row) {
                             return '<div class="plate">' + replaceArabicWithFrench(data) + '</div>';
+                        }
+                    },
+                    {
+                        "data": "picture",
+                        "render": function(data, type, row) {
+                            return '<img src="' + data + '" width="150" alt="Picture" class="img-thumbnail" onclick="showModalImage(\'' + data + '\')">';
+                        }
+                    },
+                    {
+                        "data": "scan",
+                        "render": function(data, type, row) {
+                            return '<img src="' + data + '" width="150" alt="Scan" class="img-thumbnail" onclick="showModalImage(\'' + data + '\')">';
+                        }
+                    },
+                    {
+                        "data": "picture",
+                        "title": "Plate Miniature",
+                        "render": function(data, type, row) {
+                            const miniaturePath = data ? data + '.png' : null;
+                            return '<img src="' + miniaturePath + '" width="120" alt="Plate Miniature" class="img-thumbnail" onclick="showModalImage(\'' + miniaturePath + '\')">';
                         }
                     },
                     {
@@ -196,30 +200,29 @@
                         },
                         "orderable": false, // Disable sorting for this column
                         "searchable": false // Disable searching for this column
+                    },
+                    {
+                        "data": null,
+                        "render": function(data, type, row) {
+                            // Combine all images in a container for that row
+                            return `
+            <div class="image-slideshow-container" onclick="startSlideshow(this)">
+                <img src="${row.picture}" alt="Picture" class="img-thumbnail">
+                <hr>
+                <img src="${row.scan}" alt="Scan" class="img-thumbnail">
+                <!-- Add other images similarly -->
+            </div>
+        `;
+                        }
                     }
 
                 ],
                 "order": [
-                    [5, 'desc']
+                    [7, 'desc']
                 ]
             });
 
         });
-
-        let viewer;
-
-        //SHOW SCAN IMAGES SLIDESHOW ON CLICK ON A SINGLE IMAGE
-        function startSlideshow(container) {
-            if (viewer) {
-                viewer.destroy();
-            }
-            // Initialize viewer.js on the container
-            viewer = new Viewer(container, {
-                // viewer.js options here...
-            });
-            // Start the viewer
-            viewer.show();
-        }
 
         let historyDataTable; // This will hold the reference to the DataTable instance
 
@@ -286,6 +289,19 @@
             });
         }
 
+        function startSlideshow(container) {
+            // Initialize viewer.js on the container
+            const viewer = new Viewer(container, {
+                // viewer.js options here...
+            });
+
+            // Start the viewer
+            viewer.show();
+
+            // As viewer.js will auto-destroy on close, no need for explicit destroy
+        }
+
+
         function showSlideshow(scanImageUrl) {
             // Fetch the entire dataset from historyDataTable (You might want to adjust this depending on how you fetch data)
             let allData = historyDataTable.rows().data();
@@ -313,6 +329,21 @@
         setInterval(function() {
             //entrancesTable.ajax.reload(null, false); // Update the reference to use the renamed variable.
         }, 2000);
+
+        let viewer;
+
+        function showModalImage(imgSrc) {
+            $("#modalImage").attr("src", imgSrc);
+            $("#imageModal").modal("show");
+
+            viewer = new Viewer(document.getElementById('modalImage'));
+        }
+
+        $("#imageModal").on('hidden.bs.modal', function() {
+            if (viewer) {
+                viewer.destroy();
+            }
+        });
 
         function SimulateLPR() {
             $.get('snaplpr.php?ip=10.10.3.12', function(path) {
@@ -614,11 +645,6 @@
                 }
             });
         }
-
-        $(document).on('click', '.close', function() {
-            $(this).closest('.modal').modal('hide'); // Close parent modal
-        });
-
     </script>
 </body>
 

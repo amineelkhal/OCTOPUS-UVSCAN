@@ -18,7 +18,20 @@ try {
     throw new \PDOException($e->getMessage(), (int)$e->getCode());
 }
 
-$stmt = $pdo->query('SELECT * FROM entrances');
+$query = "
+    SELECT 
+        e.*, s.name, s.description as scannerdescription
+    FROM 
+        `entrances` e 
+    JOIN 
+        `scanner` s ON e.scanner = s.id 
+    WHERE 
+        e.deleted = 0 
+    ORDER BY 
+        e.entry_date DESC
+";
+
+$stmt = $pdo->query($query);
 $data = $stmt->fetchAll();
 
 echo json_encode(array("data" => $data));

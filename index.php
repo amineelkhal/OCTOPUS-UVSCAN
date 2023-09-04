@@ -4,12 +4,18 @@
 <head>
     <?php include "includes/_inc_head.php" ?>
     <style>
-        .plate {
+        .license-plate {
+            font-family: 'Arial', sans-serif;
+            display: inline-block;
             background-color: #fff;
+            border: 4px solid #000;
+            border-radius: 8px;
+            padding: 10px 20px;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+            letter-spacing: 2px;
+            font-size: 30px;
+            text-transform: uppercase;
             color: #000;
-            font-weight: bold;
-            padding: 2px;
-            text-align: center;
         }
 
         #historyTable {
@@ -72,30 +78,25 @@
                                         <h3 class="card-title mb-0">Entrances</h3>
                                     </div>
                                     <div class="card-body">
-
-                                        <div id="imageGallery" class="table-responsive">
-
-                                            <table id="entrancesTable" class="table table-bordered table-striped">
-                                                <thead>
-                                                    <tr>
-                                                        <th>ID</th>
-                                                        <th>Scanner</th>
-                                                        <th>Scanning Results</th>
-                                                        <th>Plate</th>
-                                                        <!--<th>Picture</th>-->
-                                                        <!--<th>Scan</th>-->
-                                                        <!--<th>Plate Miniature</th>-->
-                                                        <th>Details</th>
-                                                        <th>Entry Date</th>
-                                                        <th>Action</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <!-- Data will be filled in here by DataTables -->
-                                                </tbody>
-                                            </table>
-
-                                        </div>
+                                        <table id="entrancesTable" class="table table-bordered table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>ID</th>
+                                                    <th>Scanner</th>
+                                                    <th>Scanning Results</th>
+                                                    <th>Plate</th>
+                                                    <!--<th>Picture</th>-->
+                                                    <!--<th>Scan</th>-->
+                                                    <!--<th>Plate Miniature</th>-->
+                                                    <th>Details</th>
+                                                    <th>Entry Date</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <!-- Data will be filled in here by DataTables -->
+                                            </tbody>
+                                        </table>
                                         <input type="button" value="Simulate scan LPR" onclick="SimulateLPR()">
                                         <input type="button" value="Simulate Refresh" onclick="refreshDataTable()">
                                     </div>
@@ -183,7 +184,7 @@
                     {
                         "data": "plate",
                         "render": function(data, type, row) {
-                            return '<div class="plate">' + replaceArabicWithFrench(data) + '</div>';
+                            return '<div class="license-plate">' + replaceArabicWithFrench(data) + '</div>';
                         }
                     },
                     {
@@ -269,7 +270,10 @@
                                 "data": "id"
                             },
                             {
-                                "data": "scanner"
+                                "data": "scanner_name",
+                                "render": function(data, type, row) {
+                                    return data + "<hr>" + row.scanner_description
+                                }
                             },
                             {
                                 "data": "plate",

@@ -394,7 +394,7 @@
                 const formData = new FormData();
                 formData.append('service', 'anpr,mmr');
                 const fileInputElement = document.getElementById('scanImage' + scannerId);
-                console.log(fileInputElement.files[0]);
+                //console.log(fileInputElement.files[0]);
                 formData.append('image', fileInputElement.files[0]);
                 formData.append('maxreads', 1);
                 const options = {
@@ -467,7 +467,6 @@
         }
 
         function deleteLine(id) {
-
             swal({
                     title: "Attention",
                     text: "Do you really want to delete ?",
@@ -486,12 +485,6 @@
                         });
                     }
                 });
-        }
-
-        function showImage(src, plate, brand) {
-            $("#imagePopup .modal-body").html('<img src="' + src + '" />');
-            $("#imagePopup .modal-title").html('<span class="badge bg-success">' + plate + '</span> <span class="badge bg-default">' + brand + '</span>');
-            $("#imagePopup").modal('show')
         }
 
         //GRABBER

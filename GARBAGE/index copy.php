@@ -3,31 +3,6 @@
 
 <head>
     <?php include "includes/_inc_head.php" ?>
-
-    <script>
-        function showImage(id) {
-            // Get the modal
-            var modal = document.getElementById("myModal");
-
-            // Get the image and insert it inside the modal - use its "alt" text as a caption
-            var img = document.getElementById("myImage");
-            var modalImg = document.getElementById("img01");
-            var captionText = document.getElementById("caption");
-            img.onclick = function() {
-                modal.style.display = "block";
-                modalImg.src = this.src;
-                captionText.innerHTML = this.alt;
-            }
-
-            // Get the <span> element that closes the modal
-            var span = document.getElementsByClassName("close")[0];
-
-            // When the user clicks on <span> (x), close the modal
-            span.onclick = function() {
-                modal.style.display = "none";
-            }
-        }
-    </script>
 </head>
 
 <body class="app sidebar-mini ltr sidenav-toggled dark-mode">
@@ -49,8 +24,6 @@
             <!--APP-SIDEBAR-->
             <?php include "includes/_inc_sidebar.php"; ?>
             <!--/APP-SIDEBAR-->
-
-
 
             <!-- APP-CONTENT OPEN -->
             <div class="main-content app-content mt-0">
@@ -86,39 +59,33 @@
                                         <h3 class="card-title mb-0">Entrances</h3>
                                     </div>
                                     <div class="card-body">
-                                        <form id="adjustmentForm">
-                                            Contrast:
-                                            <span id="contrastValue">3.0</span>
-                                            <input type="range" min="0" max="3" step="0.1" name="contrast" value="3.0" onchange="document.getElementById('contrastValue').innerText = this.value;"><br>
-                                            Brightness:
-                                            <span id="brightnessValue">0</span>
-                                            <input type="range" min="-100" max="100" name="brightness" value="0" onchange="document.getElementById('brightnessValue').innerText = this.value;"><br>
-                                            Histogram Equalization Intensity:
-                                            <span id="hist_eq_intensityValue">0.8</span>
-                                            <input type="range" min="0" max="1" step="0.1" name="hist_eq_intensity" value="0.8" onchange="document.getElementById('hist_eq_intensityValue').innerText = this.value;"><br>
-                                            <input type="button" value="Grab Images (Or Press Space)" onclick="submitForm()">
-                                        </form>
-                                        <div id="result">test</div>
-                                        <div class="table-responsive">
-                                            <table id="data-table" class="table table-bordered table-striped text-nowrap mb-0">
-                                                <thead class="border-top">
+
+                                        <div id="imageGallery" class="table-responsive">
+
+                                            <table id="entrancesTable" class="table table-bordered table-striped">
+                                                <thead>
                                                     <tr>
-                                                        <th class="bg-transparent border-bottom-0 w-5">ID</th>
-                                                        <th class="bg-transparent border-bottom-0">Entry</th>
-                                                        <th class="bg-transparent border-bottom-0">Picture</th>
-                                                        <th class="bg-transparent border-bottom-0">Zoom</th>
-                                                        <th class="bg-transparent border-bottom-0">Scan</th>
-                                                        <th class="bg-transparent border-bottom-0">Plate</th>
-                                                        <th class="bg-transparent border-bottom-0">Date</th>
-                                                        <th class="bg-transparent border-bottom-0">Details</th>
-                                                        <th class="bg-transparent border-bottom-0">Action</th>
+                                                        <th>ID</th>
+                                                        <th>Scanner</th>
+                                                        <th>Plate</th>
+                                                        <th>Picture</th>
+                                                        <th>Scan</th>
+                                                        <th>Country</th>
+                                                        <th>Color</th>
+                                                        <th>Category</th>
+                                                        <th>Mark</th>
+                                                        <th>Plate Miniature</th>
+                                                        <th>Entry Date</th>
                                                     </tr>
                                                 </thead>
-                                                <tbody id="resultsList">
-                                                    <?php include "list.php"; ?>
+                                                <tbody>
+                                                    <!-- Data will be filled in here by DataTables -->
                                                 </tbody>
                                             </table>
+
                                         </div>
+                                        <input type="button" value="Simulate scan LPR" onclick="SimulateLPR()">
+                                        <input type="button" value="Simulate Refresh" onclick="refreshDataTable()">
                                     </div>
                                 </div>
                             </div>
@@ -134,11 +101,308 @@
         <!-- FOOTER -->
         <?php include "includes/_inc_footer.php"; ?>
         <!-- FOOTER END -->
+
     </div>
     <!-- end main content-->
     <?php include "includes/_inc_js.php"; ?>
     <?php include "includes/_inc_modals.php"; ?>
+    <link rel="stylesheet" href="assets/css/viewer.min.css">
+    <script src="assets/js/viewer.min.js"></script>
     <script>
+        isDemo = false;
+
+        scanLoop1 = 'off';
+        scanLoop2 = 'off';
+        scanLoop3 = 'off';
+        scanStatus1 = 'off';
+        scanStatus2 = 'off';
+        scanStatus3 = 'off';
+
+        //LOAD ENTRANCES
+        let entrancesTable;
+        $(document).ready(function() {
+            entrancesTable = $('#entrancesTable').DataTable({
+                "ajax": "fetch_entrances.php",
+                "columns": [{
+                        "data": "id"
+                    },
+                    {
+                        "data": "scanner"
+                    },
+                    {
+                        "data": "plate"
+                    },
+                    {
+                        "data": "picture",
+                        "render": function(data, type, row) {
+                            return '<img src="' + data + '" width="50" height="50" alt="Picture" class="img-thumbnail" onclick="showModalImage(\'' + data + '\')">';
+                        }
+                    },
+                    {
+                        "data": "scan",
+                        "render": function(data, type, row) {
+                            return '<img src="' + data + '" width="50" height="50" alt="Scan" class="img-thumbnail" onclick="showModalImage(\'' + data + '\')">';
+                        }
+                    },
+                    {
+                        "data": "description", // assuming country data is within the description
+                        "title": "Country",
+                        "render": function(data, type, row) {
+                            // Transform the description data to get the country value
+                            // For the sake of this example, let's say you just return the data as-is
+                            return data;
+                        }
+                    },
+                    {
+                        "data": "color",
+                        "render": function(data, type, row) {
+                            // Assuming `data` contains the RGB value in the format 'r,g,b'
+                            return '<div style="background-color: rgb(' + data + '); width: 30px; height: 30px;"></div>';
+                        }
+                    },
+                    {
+                        "data": "category"
+                    },
+                    {
+                        "data": "mark"
+                    },
+                    {
+                        "data": "picture",
+                        "title": "Plate Miniature",
+                        "render": function(data, type, row) {
+                            const miniaturePath = data ? data + '.png' : null;
+                            return '<img src="' + miniaturePath + '" width="50" height="50" alt="Plate Miniature" class="img-thumbnail" onclick="showModalImage(\'' + miniaturePath + '\')">';
+                        }
+                    },
+                    {
+                        "data": "entry_date",
+                        "render": function(data, type, row) {
+                            // Assuming you want to keep it in its raw form. Modify as needed.
+                            return data;
+                        }
+                    }
+                ],
+                "order": [
+                    [10, 'desc']
+                ]
+            });
+        });
+
+        function refreshDataTable() {
+            entrancesTable.ajax.reload(); // Use the stored reference to reload the table.
+        }
+
+        // Setup the refresh interval here
+        setInterval(function() {
+            entrancesTable.ajax.reload(null, false); // Update the reference to use the renamed variable.
+        }, 2000);
+
+
+        let viewer;
+
+        function showModalImage(imgSrc) {
+            $("#modalImage").attr("src", imgSrc);
+            $("#imageModal").modal("show");
+
+            viewer = new Viewer(document.getElementById('modalImage'));
+        }
+
+        $("#imageModal").on('hidden.bs.modal', function() {
+            if (viewer) {
+                viewer.destroy();
+            }
+        });
+
+        function SimulateLPR() {
+            $.get('snaplpr.php?ip=10.10.3.12', function(path) {
+                startLPR(2, path)
+            });
+        }
+
+        //LOOP READER - EXDUL READER
+        if (!isDemo) {
+            setInterval(function() {
+
+                
+                $.get("readexdul.php?ip=10.10.1.10", function(data) {
+                    scanLoop1 = data;
+                    $("#loopscan1").html(scanLoop1);
+
+                    if (scanLoop1 == 'off') {
+                        $("#lpr1").css({
+                            "border": "2px solid white"
+                        });
+                        scanStatus1 = 'off';
+                    } else {
+                        $("#lpr1").css({
+                            "border": "2px solid green"
+                        });
+                        //START LPR CATCHING
+                        if (scanStatus1 == 'off') {
+                            scanStatus1 = 'scanning';
+
+                            pictureName = "10-10-1-12-" + Date.now() + ".jpg";
+
+                            startGrabbing(pictureName);
+
+                            $.get('snaplpr.php?ip=10.10.1.12&name=' + pictureName, function(path) {
+                                startLPR(1, pictureName)
+                            });
+                        }
+                    }
+                });
+                
+
+                $.get("readexdul.php?ip=10.10.3.10", function(data) {
+                    scanLoop2 = data;
+                    $("#loopscan2").html(scanLoop2);
+
+                    if (scanLoop2 == 'off') {
+                        $("#lpr2").css({
+                            "border": "2px solid white"
+                        });
+                        scanStatus2 = 'off';
+                    } else {
+                        $("#lpr2").css({
+                            "border": "2px solid green"
+                        });
+                        //START LPR CATCHING
+                        if (scanStatus2 == 'off') {
+                            scanStatus2 = 'scanning';
+                            pictureName = "10-10-3-12-" + Date.now() + ".jpg";
+
+                            startGrabbing(pictureName);
+
+                            $.get('snaplpr.php?ip=10.10.3.12&name=' + pictureName, function(path) {
+                                startLPR(2, pictureName)
+                            });
+                            
+                        }
+                    }
+                });
+
+                
+                $.get("readexdul.php?ip=10.10.2.10", function(data) {
+                    scanLoop3 = data;
+                    $("#loopscan3").html(scanLoop3);
+
+                    if (scanLoop3 == 'off') {
+                        $("#lpr3").css({
+                            "border": "2px solid white"
+                        });
+                        scanStatus3 = 'off';
+                    } else {
+                        $("#lpr3").css({
+                            "border": "2px solid green"
+                        });
+                        //START LPR CATCHING
+                        if (scanStatus3 == 'off') {
+                            scanStatus3 = 'scanning';
+
+                            pictureName = "10-10-2-12-" + Date.now() + ".jpg";
+
+                            startGrabbing(pictureName);
+
+                            $.get('snaplpr.php?ip=10.10.2.12&name=' + pictureName, function(path) {
+                                startLPR(3, pictureName)
+                            });
+                        }
+                    }
+                });
+                
+
+            }, 500);
+        }
+
+        //GET IMAGE TO BE SENT TO ARH CLOUD SERVICE
+        const urlToObject = async (filepath, scannerId) => {
+            const response = await fetch(filepath);
+            const blob = await response.blob();
+            const file = new File([blob], 'image.jpg', {
+                type: blob.type
+            });
+            const dataTransfer = new DataTransfer();
+            const fileInputElement = document.getElementById('scanImage' + scannerId);
+            dataTransfer.items.add(file);
+            fileInputElement.files = dataTransfer.files;
+            //console.log(file);
+        }
+
+        //SEND QUERY TO AHR COULD SERVICE
+        function startLPR(scannerId, path) {
+            urlToObject('assets/lprsnaps/' + path, scannerId).then(function() {
+                const formData = new FormData();
+                formData.append('service', 'anpr,mmr');
+                const fileInputElement = document.getElementById('scanImage' + scannerId);
+                console.log(fileInputElement.files[0]);
+                formData.append('image', fileInputElement.files[0]);
+                formData.append('maxreads', 1);
+                const options = {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Api-Key': 'kYQhj3VUCC9R3QIDtqjif9kFYMl0LCRG3A1MDVvd',
+                    },
+                };
+                fetch('https://api.cloud.adaptiverecognition.com/vehicle/afr', options)
+                    .then(function(response) {
+                        console.log('Response received:', response)
+                        return response.json();
+                    }).then(function(results) {
+                        console.log(results.data.vehicles[0]);
+                        vehicle = results.data.vehicles[0];
+                        color = "0,0,0";
+                        mark = "unknown";
+                        category = "unknown";
+                        if (vehicle && vehicle.hasOwnProperty('mmr') && vehicle['mmr'].hasOwnProperty('color')) {
+                            color = vehicle['mmr']['color']['r'] + "," + vehicle['mmr']['color']['g'] + "," + vehicle['mmr']['color']['b'];
+                            mark = vehicle['mmr']['make'];
+                            category = vehicle['mmr']['category'];
+                        }
+
+                        bounds = "0";
+
+                        if (vehicle && vehicle.hasOwnProperty('bounds') && vehicle['bounds'].hasOwnProperty('extendedPlateFrame')) {
+                            extendedPlateFrame = vehicle['bounds']['extendedPlateFrame'];
+                            bounds = extendedPlateFrame['bottomLeft']['x'] + ',' + extendedPlateFrame['bottomLeft']['y'] + ',' + extendedPlateFrame['bottomRight']['x'] + ',' + extendedPlateFrame['bottomRight']['y'] + ',' + extendedPlateFrame['topLeft']['x'] + ',' + extendedPlateFrame['topLeft']['y'] + ',' + extendedPlateFrame['topRight']['x'] + ',' + extendedPlateFrame['topRight']['y'];
+                        }
+
+                        let separatedText;
+                        let countryText;
+
+                        if (vehicle && vehicle.hasOwnProperty('plate') && vehicle['plate'].hasOwnProperty('separatedText')) {
+                            separatedText = vehicle['plate']['separatedText'];
+                            vehicle['plate']['country']
+                        } else {
+                            // Handle the case where the properties are not present
+                            // You can either set a default value or handle the error accordingly
+                            separatedText = "N/A"; // setting a default value, adjust this as needed
+                            countryText = "N/A";
+                        }
+
+
+                        $.get("save.php", {
+                            'scannerId': scannerId,
+                            'plate': separatedText,
+                            'picture': 'assets/lprsnaps/' + path,
+                            'description': countryText,
+                            'color': color,
+                            'scan': 'assets/scans/' + path,
+                            'category': category,
+                            'mark': mark,
+                            'bounds': bounds,
+                            'width': (extendedPlateFrame['topRight']['x'] - extendedPlateFrame['topLeft']['x']),
+                            'height': (extendedPlateFrame['bottomRight']['y'] - extendedPlateFrame['topRight']['y']),
+                            x: extendedPlateFrame['topLeft']['x'],
+                            y: extendedPlateFrame['topLeft']['y']
+                        }, function(data) {
+                            console.log(data);
+                        })
+                    })
+                    .catch((err) => console.log('Error:', err));
+            });
+        }
+
         function deleteLine(id) {
 
             swal({
@@ -166,236 +430,35 @@
             $("#imagePopup").modal('show')
         }
 
-        isDemo = false;
-        scanLoop1 = 'off';
-        scanLoop2 = 'off';
-        scanLoop3 = 'off';
-        scanStatus1 = 'off';
-        scanStatus2 = 'off';
-        scanStatus3 = 'off';
-
-        if (!isDemo) {
-            setInterval(function() {
-                $("#listResults").load("list.php");
-            }, 10000);
-        } else {
-            $("#listResults").load("list.php");
-        }
-
-        //LOOP READER - EXDUL READER
-        if (!isDemo) {
-            setInterval(function() {
-
-                /*
-                $.get("readexdul.php?ip=10.10.1.10", function(data) {
-                    scanLoop1 = data;
-                    $("#loopscan1").html(scanLoop1);
-
-                    if (scanLoop1 == 'off') {
-                        $("#lpr1").css({
-                            "border": "2px solid white"
-                        });
-                        scanStatus1 = 'off';
-                    } else {
-                        $("#lpr1").css({
-                            "border": "2px solid green"
-                        });
-                        //START LPR CATCHING
-                        if (scanStatus1 == 'off') {
-                            scanStatus1 = 'scanning';
-                            $.get('snaplpr.php?ip=10.10.1.12', function(path) {
-                                startLPR(1, path)
-                            });
-                        }
-                    }
-                });
-                */
-
-                $.get("readexdul.php?ip=10.10.3.10", function(data) {
-                    scanLoop2 = data;
-                    $("#loopscan2").html(scanLoop2);
-
-                    if (scanLoop2 == 'off') {
-                        $("#lpr2").css({
-                            "border": "2px solid white"
-                        });
-                        scanStatus2 = 'off';
-                    } else {
-                        $("#lpr2").css({
-                            "border": "2px solid green"
-                        });
-                        //START LPR CATCHING
-                        if (scanStatus2 == 'off') {
-                            scanStatus2 = 'scanning';
-                            $.get('snaplpr.php?ip=10.10.2.12', function(path) {
-                                startLPR(2, path)
-                            });
-                        }
-                    }
-                });
-
-                /*
-                $.get("readexdul.php?ip=10.10.2.10", function(data) {
-                    scanLoop3 = data;
-                    $("#loopscan3").html(scanLoop3);
-
-                    if (scanLoop3 == 'off') {
-                        $("#lpr3").css({
-                            "border": "2px solid white"
-                        });
-                        scanStatus3 = 'off';
-                    } else {
-                        $("#lpr3").css({
-                            "border": "2px solid green"
-                        });
-                        //START LPR CATCHING
-                        if (scanStatus3 == 'off') {
-                            scanStatus3 = 'scanning';
-                            $.get('snaplpr.php?ip=10.10.3.12', function(path) {
-                                startLPR(3, path)
-                            });
-                        }
-                    }
-                });
-                */
-
-            }, 500);
-        }
-
-        //GET IMAGE TO BE SENT TO ARH CLOUD SERVICE
-        const urlToObject = async (filepath, scannerId) => {
-            const response = await fetch(filepath);
-            const blob = await response.blob();
-            const file = new File([blob], 'image.jpg', {
-                type: blob.type
-            });
-            const dataTransfer = new DataTransfer();
-            const fileInputElement = document.getElementById('scanImage' + scannerId);
-            dataTransfer.items.add(file);
-            fileInputElement.files = dataTransfer.files;
-            //console.log(file);
-        }
-
-        //SEND QUERY TO AHR COULD SERVICE
-        function startLPR(scannerId, path) {
-            urlToObject(path, scannerId).then(function() {
-                const formData = new FormData();
-                formData.append('service', 'anpr,mmr');
-                const fileInputElement = document.getElementById('scanImage' + scannerId);
-                console.log(fileInputElement.files[0]);
-                formData.append('image', fileInputElement.files[0]);
-                formData.append('maxreads', 1);
-                const options = {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-Api-Key': 'kYQhj3VUCC9R3QIDtqjif9kFYMl0LCRG3A1MDVvd',
-                    },
-                };
-                fetch('https://api.cloud.adaptiverecognition.com/vehicle/afr', options)
-                    .then(function(response) {
-                        //console.log('Response received:', response)
-                        return response.json();
-                    }).then(function(results) {
-                        console.log(results.data.vehicles[0]);
-                        vehicle = results.data.vehicles[0];
-                        color = "0,0,0";
-                        mark = "unknown";
-                        category = "unknown";
-                        if (vehicle.hasOwnProperty('mmr')) {
-                            color = vehicle['mmr']['color']['r'] + "," + vehicle['mmr']['color']['g'] + "," + vehicle['mmr']['color']['b'];
-                            mark = vehicle['mmr']['make'];
-                            category = vehicle['mmr']['category'];
-                        }
-
-                        extendedPlateFrame = vehicle['bounds']['extendedPlateFrame'];
-                        bounds = extendedPlateFrame['bottomLeft']['x'] + ',' + extendedPlateFrame['bottomLeft']['y'] + ',' + extendedPlateFrame['bottomRight']['x'] + ',' + extendedPlateFrame['bottomRight']['y'] + ',' + extendedPlateFrame['topLeft']['x'] + ',' + extendedPlateFrame['topLeft']['y'] + ',' + extendedPlateFrame['topRight']['x'] + ',' + extendedPlateFrame['topRight']['y'];
-                        $.get("save.php", {
-                            'scannerId': scannerId,
-                            'plate': vehicle['plate']['separatedText'],
-                            'picture': path,
-                            'description': vehicle['plate']['country'],
-                            'color': color,
-                            'category': category,
-                            'mark': mark,
-                            'bounds': bounds,
-                            'width': (extendedPlateFrame['topRight']['x'] - extendedPlateFrame['topLeft']['x']),
-                            'height': (extendedPlateFrame['bottomRight']['y'] - extendedPlateFrame['topRight']['y']),
-                            x: extendedPlateFrame['topLeft']['x'],
-                            y: extendedPlateFrame['topLeft']['y']
-                        }, function(data) {
-                            console.log(data);
-                        })
-                    })
-                    .catch((err) => console.log('Error:', err));
-            });
-        }
-
-        //------- UNDER VEHICLES SCANNER ---------//
-        function startSCAN(scannerId) {
-            const grabTotal = 50;
-            const grabTime = 100;
-            var i = 0;
-            var garbInterval = setInterval(function() {
-                if (i < grabTotal) {
-                    $.get("snapcam.php?scannerId=" + scannerId + "&id=" + i, function() {
-                        $.get("merge.php");
-                    });
-                } else {
-                    clearInterval(garbInterval);
-                }
-
-                i++;
-                console.log("grabbing : " + i);
-            }, grabTime);
-        }
-
-        $(document).ready(function() {
-            // Submit the form using the space key
-            $(document).keydown(function(event) {
-                if (event.which == 32) {
-                    submitForm();
-                }
-            });
-
-            $('#adjustmentForm').submit(function(event) {
-                event.preventDefault();
-                startGrabbing();
-            });
-        });
-
-        function submitForm() {
-            $('#adjustmentForm').submit();
-        }
-
         //GRABBER
-        function startGrabbing() {
+        function startGrabbing(picturename) {
             console.log("Start Grabbing");
+            /*$.get('snaplpr.php?ip=10.10.3.12', function(path) {
+                startLPR(2, path)
+            });*/
             $.ajax({
                 url: 'http://localhost:5000/grab_images',
-                method: 'POST',
-                data: $('#adjustmentForm').serialize(),
-                success: function(response) {
-                    if (response.status === 'success') {
-                        console.log(response.image)
-                        //$('#result').html('<img height="400" src="http://localhost:5000/' + response.image + '" alt="Captured Image" />');
-                    } else {
-                        $('#result').text(response.message);
-                    }
-                    console.log("Finish");
+                type: 'POST',
+                data: {
+                    'contrast': '1.0',
+                    'brightness': '0',
+                    'hist_eq_intensity': '0.5',
+                    'picturename': picturename
                 },
-                error: function() {
-                    $('#result').text('An error occurred while processing the request.');
-                    console.log("Finish");
+                success: function(response) {
+                    if (response.status === "success") {
+                        console.log("Images captured and assembled successfully.");
+                        // Handle displaying the image or other actions here.
+                    } else {
+                        console.error(response.message);
+                    }
+                },
+                error: function(error) {
+                    console.error("Error during image grabbing:", error);
                 }
             });
         }
 
-        /*setTimeout(function(){
-            $.get('prepend.php', function(data){
-                table.row.add(JSON.parse(data)).draw().node();
-            })
-        }, 1000);*/
     </script>
 </body>
 

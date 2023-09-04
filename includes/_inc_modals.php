@@ -116,6 +116,9 @@
                                 <!-- Add Arabic letters options -->
                                 <option value="ا">ا</option>
                                 <option value="ب">ب</option>
+                                <option value="د">د</option>
+                                <option value="و">و</option>
+                                <option value="ط">ط</option>
                                 <!-- ... other letters ... -->
                             </select>
                         </div>

@@ -208,10 +208,15 @@
                         "title": "History",
                         "data": null,
                         "render": function(data, type, row) {
-                            return `
+                            final = ``;
+                            if (row.previousScan) {
+                                final += `<button class="btn btn-success" onclick="comparePlates('${row.scan}', '${row.previousScan}', '${row.entry_date}', '${row.previousEntryDate}')">Compare Scan</button><hr>`;
+                            }
+                            final += `
                             <button class="btn btn-primary" onclick="showHistory('${row.plate}')">Show History</button><hr>
                             <button class="btn btn-secondary" onclick="editPlate('${row.id}', '${row.plate}', '${row.picture}')">Edit Plate</button><hr>
                             <button class="btn btn-danger" onclick="deleteLine(${row.id})">Delete</button>`;
+                            return final;
                         },
                         "orderable": false, // Disable sorting for this column
                         "searchable": false // Disable searching for this column
@@ -224,6 +229,29 @@
             });
 
         });
+
+        function comparePlates(currentScan, previousScan, entryDate, previousEntryDate) {
+            $.ajax({
+                url: 'compare_scans.php',
+                method: 'GET',
+                data: {
+                    currentScan: currentScan,
+                    previousScan: previousScan,
+                    entryDate: entryDate,
+                    previousEntryDate: previousEntryDate,
+                },
+                success: function(response) {
+                    if ( response != "" )
+                        alert(response);
+                    console.log(response);
+                    // Handle the response from the server, e.g., display it to the user
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    console.error("Failed to compare scans:", textStatus, errorThrown);
+                }
+            });
+        }
+
 
         //SHOW SCAN IMAGES SLIDESHOW ON CLICK ON A SINGLE IMAGE
         let viewer;

@@ -16,7 +16,7 @@ if (!$conn) {
 if ( empty($_GET["plate"]) ) $_GET["plate"] = "No plate";
 if ( empty($_GET["description"]) ) $_GET["description"] = "No description";
 
-$sql = "INSERT INTO entrances VALUES (NULL, ". $_GET["scannerId"] .", '". $_GET["plate"] ."', '". $_GET["picture"] ."', '". $_GET["scan"] ."', now(), '". $_GET["description"] ."', '". $_GET["color"] ."', '". $_GET["category"] ."', '". $_GET["mark"] ."', '". $_GET["bounds"] ."', 0)";
+$sql = "INSERT INTO entrances VALUES (NULL, ". $_GET["scannerId"] .", '". $_GET["plate"] ."', '". $_GET["picture"] ."', '". $_GET["scan"] ."', now(), '". $_GET["description"] ."', '". $_GET["color"] ."', '". $_GET["category"] ."', '". $_GET["mark"] ."', '". $_GET["bounds"] ."', 0, NOW())";
 
 if (mysqli_query($conn, $sql)) {
     echo "New record created successfully";

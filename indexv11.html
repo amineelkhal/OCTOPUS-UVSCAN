@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Grabber</title>
+    <script src="static/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/CamanJS/4.1.2/caman.full.min.js"></script>
+</head>
+<body>
+    <h2>Image Grabber</h2>
+    <form id="grabForm">
+        Contrast: <input type="range" min="0.1" max="3" step="0.1" name="contrast" value="1.0" id="contrast"><span id="contrastVal">1.0</span><br>
+        Brightness: <input type="range" min="0" max="100" step="1" name="brightness" value="0" id="brightness"><span id="brightnessVal">0</span><br>
+        Histogram Equalization Intensity: <input type="range" min="0" max="1" step="0.1" name="hist_eq_intensity" value="0.5" id="hist_eq_intensity"><span id="histEqIntensityVal">0.5</span><br>
+        Camera IP Address: <input type="text" name="ip_address" value="10.10.3.11"><br>
+        Picture Name: <input type="text" name="picturename" value="default_name"><br>
+        <button type="button" onclick="startGrabbing()">Start Grabbing</button>
+    </form>
+    <img id="finalImage" src="#" alt="Final Image" style="display:none;">
+    <script>
+        function startGrabbing() {
+            var formData = new FormData($("#grabForm")[0]);
+            $.post("/grab_images", formData, function(data) {
+                if (data.status === "success") {
+                    $("#finalImage").attr("src", data.image);
+                    $("#finalImage").show();
+                } else {
+                    alert(data.message);
+                }
+            });
+        }
+
+        $('input[type="range"]').on('input', function() {
+            var id = $(this).attr('id');
+            $('#' + id + 'Val').text($(this).val());
+        });
+    </script>
+</body>
+</html>

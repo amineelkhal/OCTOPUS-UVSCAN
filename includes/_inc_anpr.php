@@ -15,7 +15,7 @@
                             </div>
                             <div class="col col-auto">
                                 <div class="lprcam" id="lpr1">
-                                    <!--<img width="100%" src="http://10.10.1.12:9901/livepic.mjpeg?id=92">-->
+                                    <img width="100%" src="http://10.10.2.12:9901/livepic.mjpeg?id=92">
                                 </div>
                             </div>
                         </div>
@@ -57,7 +57,7 @@
                             </div>
                             <div class="col col-auto">
                                 <div class="lprcam" id="lpr3">
-                                    <!--<img width="100%" src="http://10.10.2.12:9901/livepic.mjpeg?id=92">-->
+                                    <!--<img width="100%" src="http://10.10.1.12:9901/livepic.mjpeg?id=92">-->
                                 </div>
                             </div>
                         </div>

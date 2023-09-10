@@ -20,13 +20,13 @@ def grab_images():
     hist_eq_intensity = float(request.form.get('hist_eq_intensity', 0.5))
     picture_name = request.form.get('picturename', 'default_name')
 
-    IP_ADDRESS = '10.10.3.11'
+    IP_ADDRESS = request.form.get('ip_address', '10.10.3.11')  # Defaulting
     tl_factory = pylon.TlFactory.GetInstance()
     devices = tl_factory.EnumerateDevices()
     target_device = next((device for device in devices if device.GetIpAddress() == IP_ADDRESS), None)
 
     if not target_device:
-        return jsonify({'status': 'error', 'message': 'Camera with the specified IP not found.'})
+        return jsonify({'status': 'error', 'message': 'Camera with the specified IP not found.' + IP_ADDRESS})
 
     camera = pylon.InstantCamera(tl_factory.CreateDevice(target_device))
     camera.Open()
@@ -45,7 +45,7 @@ def grab_images():
                 image = cv2.convertScaleAbs(image, alpha=contrast, beta=brightness)
                 
                 aspect_ratio = image.shape[1] / image.shape[0]
-                dim = (2000, int(2000 / aspect_ratio))
+                dim = (1800, int(1800 / aspect_ratio))
                 resized_image = cv2.resize(image, dim, interpolation=cv2.INTER_AREA)
                 
                 rotated_image = cv2.rotate(resized_image, cv2.ROTATE_90_CLOCKWISE)

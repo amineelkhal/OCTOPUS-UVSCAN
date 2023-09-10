@@ -13,6 +13,7 @@ $arabicToFrenchMapping = [
     'د' => 'D',
     'و' => 'E',
     'ط' => 'T',
+    'ه' => 'H'
 ];
 
 function replaceArabicWithFrench($string, $mapping) {

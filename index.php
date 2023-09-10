@@ -252,7 +252,6 @@
             });
         }
 
-
         //SHOW SCAN IMAGES SLIDESHOW ON CLICK ON A SINGLE IMAGE
         let viewer;
 
@@ -360,7 +359,8 @@
         }
 
         function SimulateLPR() {
-            $.get('snaplpr.php?ip=10.10.3.12', function(path) {
+            $.get('snaplpr.php?ip=10.10.3.12&name=test.jpg', function(path) {
+                console.log("Simulate LPR : " + path);
                 startLPR(2, path)
             });
         }
@@ -368,8 +368,9 @@
         function updateLoopScan(scannerId, ip) {
             const scanLoopVar = 'scanLoop' + scannerId;
             const scanStatusVar = 'scanStatus' + scannerId;
+            //console.log("ok")
 
-            $.get(`readexdul.php?ip=${ip}`, function(data) {
+            $.get(`readexdul.php?ip=${ip}.10`, function(data) {
                 window[scanLoopVar] = data;
                 $(`#loopscan${scannerId}`).html(data);
 
@@ -384,8 +385,9 @@
                     window[scanStatusVar] = 'scanning';
                     const pictureName = `10-10-${scannerId}-12-${Date.now()}.jpg`;
 
-                    startGrabbing(pictureName);
-                    $.get(`snaplpr.php?ip=${ip}&name=${pictureName}`, function(path) {
+                    startGrabbing(pictureName, ip + ".11");
+                    $.get(`snaplpr.php?ip=${ip}.12&name=${pictureName}`, function(path) {
+                        console.log(path);
                         startLPR(scannerId, pictureName);
                     });
                 }
@@ -395,10 +397,10 @@
         //LOOP READER - EXDUL READER
         if (!isDemo) {
             setInterval(function() {
-                console.log("Not Demo")
-                updateLoopScan(2, "10.10.1.10");
-                updateLoopScan(1, "10.10.3.10");
-                updateLoopScan(3, "10.10.2.10");
+                //console.log("Not Demo")
+                updateLoopScan(1, "10.10.2");
+                //updateLoopScan(2, "10.10.3");
+                //updateLoopScan(3, "10.10.1.10");
             }, 500);
         }
 
@@ -418,7 +420,8 @@
 
         //SEND QUERY TO AHR COULD SERVICE
         function startLPR(scannerId, path) {
-            urlToObject('assets/lprsnaps/' + path, scannerId).then(function() {
+            console.log("START LPR : "+  path )
+            urlToObject("assets/lprsnaps/" + path, scannerId).then(function() {
                 const formData = new FormData();
                 formData.append('service', 'anpr,mmr');
                 const fileInputElement = document.getElementById('scanImage' + scannerId);
@@ -430,6 +433,8 @@
                     body: formData,
                     headers: {
                         'X-Api-Key': 'kYQhj3VUCC9R3QIDtqjif9kFYMl0LCRG3A1MDVvd',
+                        'x-enable-unidentified-license-plate': true,
+                        'x-enable-wide-range-analysis': true
                     },
                 };
                 fetch('https://api.cloud.adaptiverecognition.com/vehicle/afr', options)
@@ -516,7 +521,7 @@
         }
 
         //GRABBER
-        function startGrabbing(picturename) {
+        function startGrabbing(picturename, ip) {
             console.log("Start Grabbing");
             /*$.get('snaplpr.php?ip=10.10.3.12', function(path) {
                 startLPR(2, path)
@@ -528,7 +533,8 @@
                     'contrast': '1.0',
                     'brightness': '0',
                     'hist_eq_intensity': '0.5',
-                    'picturename': picturename
+                    'picturename': picturename,
+                    'ip_address' : ip
                 },
                 success: function(response) {
                     if (response.status === "success") {
@@ -551,7 +557,8 @@
                 'ب': 'B',
                 'د': 'D',
                 'و': 'E',
-                'ط': 'T'
+                'ط': 'T',
+                'ه': 'H'
                 // ... add other mappings
             };
 
@@ -679,7 +686,7 @@
         }
 
         // Poll every 30 seconds (adjust as necessary).
-        setInterval(checkForUpdates, 3000);
+        setInterval(checkForUpdates, 5000);
     </script>
 </body>
 

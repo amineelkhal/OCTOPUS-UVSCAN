@@ -16,7 +16,7 @@
 <style>
     .lprcam {
         width: 176px;
-        height: 120px;
+        height: 100px;
         background-color: blue;
         border: 2px solid #fff;
     }

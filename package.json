@@ -1,0 +1,18 @@
+{
+  "name": "octopus-uvscan",
+  "version": "1.0.0",
+  "description": "The UVSS OCTOPUS Module for UVIScan",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron ."
+  },
+  "keywords": [
+    "Uvscan"
+  ],
+  "author": "Amine ELKHAL",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^26.2.0"
+  }
+}

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1
--- Généré le : dim. 10 sep. 2023 à 00:57
+-- Généré le : jeu. 14 sep. 2023 à 23:23
 -- Version du serveur : 10.4.21-MariaDB
 -- Version de PHP : 8.0.12
 
@@ -364,7 +364,7 @@ INSERT INTO `entrances` (`id`, `scanner`, `plate`, `picture`, `scan`, `entry_dat
 (336, 1, 'N/A', 'assets/lprsnaps/10-10-1-12-1694191765801.jpg', 'assets/scans/10-10-1-12-1694191765801.jpg', '2023-09-08 17:49:31', 'N/A', '128,128,128', 'CAR', 'Jeep', '244,411,951,411,244,55,951,55', 0, '2023-09-08 16:49:31'),
 (337, 1, 'N/A', 'assets/lprsnaps/10-10-1-12-1694191785797.jpg', 'assets/scans/10-10-1-12-1694191785797.jpg', '2023-09-08 17:49:49', 'N/A', '128,128,128', 'CAR', 'Honda', '671,710,1280,710,671,291,1280,291', 0, '2023-09-08 16:49:49'),
 (338, 1, '88253|ا|72', 'assets/lprsnaps/10-10-1-12-1694191794806.jpg', 'assets/scans/10-10-1-12-1694191794806.jpg', '2023-09-08 17:50:00', 'No description', '0,0,255', 'CAR', 'Jeep', '250,425,961,425,250,68,961,68', 0, '2023-09-08 16:50:00'),
-(339, 1, 'N/A', 'assets/lprsnaps/10-10-1-12-1694191814310.jpg', 'assets/scans/10-10-1-12-1694191814310.jpg', '2023-09-08 17:50:17', 'N/A', '0,0,0', 'unknown', 'unknown', '0', 0, '2023-09-08 16:50:17');
+(339, 1, 'N/A', 'assets/lprsnaps/10-10-1-12-1694191814310.jpg', 'assets/scans/10-10-1-12-1694191814310.jpg', '2023-09-08 17:50:17', 'N/A', '0,0,0', 'unknown', 'unknown', '0', 1, '2023-09-12 21:08:39');
 
 -- --------------------------------------------------------
 
@@ -376,17 +376,23 @@ CREATE TABLE `scanner` (
   `id` int(11) NOT NULL,
   `name` varchar(100) NOT NULL,
   `description` varchar(255) NOT NULL,
-  `scannerid` int(11) NOT NULL
+  `scannerid` int(11) NOT NULL,
+  `contrast` float NOT NULL,
+  `brightness` float NOT NULL,
+  `hist_eq_intensity` float NOT NULL,
+  `ip_address` varchar(100) NOT NULL,
+  `duration` float NOT NULL,
+  `crop` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Déchargement des données de la table `scanner`
 --
 
-INSERT INTO `scanner` (`id`, `name`, `description`, `scannerid`) VALUES
-(1, 'INDIA 5', 'BAB EL MAKHZEN', 1),
-(2, 'INDIA 14', 'MAROC TELECOM', 2),
-(3, 'SPA', 'ENTREE SPA', 3);
+INSERT INTO `scanner` (`id`, `name`, `description`, `scannerid`, `contrast`, `brightness`, `hist_eq_intensity`, `ip_address`, `duration`, `crop`) VALUES
+(1, 'INDIA 5', 'BAB EL MAKHZEN', 1, 0, 0, 0, '', 0, 0),
+(2, 'INDIA 14', 'MAROC TELECOM', 2, 0, 0, 0, '', 0, 0),
+(3, 'SPA', 'ENTREE SPA', 3, 0, 0, 0, '', 0, 0);
 
 --
 -- Index pour les tables déchargées

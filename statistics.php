@@ -49,7 +49,7 @@
 
                         <!-- ROW-4 -->
                         <div class="row">
-                            <div class="col-4 col-md-4 col-sm-12">
+                            <div class="col-6 col-md-6 col-sm-12">
                                 <div class="card">
                                     <div class="card-header">
                                         Vehicles of current year
@@ -63,7 +63,7 @@
 
                             </div>
 
-                            <div class="col-4 col-md-4 col-sm-12">
+                            <div class="col-6 col-md-6 col-sm-12">
                                 <div class="card">
                                     <div class="card-header">
                                     Vehicles of current year By Scanner Name / By Months
@@ -77,7 +77,7 @@
 
                             </div>
 
-                            <div class="col-4 col-md-4 col-sm-12">
+                            <div class="col-6 col-md-6 col-sm-12">
                                 <div class="card">
                                     <div class="card-header">
                                     Vehicles of current year By Scanner Name
@@ -108,7 +108,7 @@
     </div>
     <!-- end main content-->
     <?php include "includes/_inc_js.php"; ?>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="assets/js/charts.js"></script>
 
     <script>
         let monthlyCounts = [];

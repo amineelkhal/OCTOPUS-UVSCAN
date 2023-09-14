@@ -13,6 +13,6 @@
   "author": "Amine ELKHAL",
   "license": "ISC",
   "devDependencies": {
-    "electron": "^26.2.0"
+    "electron": "^23.1.2"
   }
 }

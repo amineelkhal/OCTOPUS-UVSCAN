@@ -25,6 +25,9 @@
                     <a class="side-menu__item" data-bs-toggle="slide" href="statistics.php"><i class="side-menu__icon fe fe-pie-chart"></i><span class="side-menu__label">Statistics</span></a>
                 </li>
                 <li class="slide">
+                    <a class="side-menu__item" data-bs-toggle="slide" href="scanners.php"><i class="side-menu__icon ion-model-s"></i><span class="side-menu__label">Scanners</span></a>
+                </li>
+                <li class="slide">
                     <a class="side-menu__item" data-bs-toggle="slide" href="archive.php"><i class="side-menu__icon fe fe-package"></i><span class="side-menu__label">Archive</span></a>
                 </li>
                 

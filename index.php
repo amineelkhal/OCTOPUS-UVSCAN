@@ -241,7 +241,7 @@
                     previousEntryDate: previousEntryDate,
                 },
                 success: function(response) {
-                    if ( response != "" )
+                    if (response != "")
                         alert(response);
                     console.log(response);
                     // Handle the response from the server, e.g., display it to the user
@@ -420,7 +420,7 @@
 
         //SEND QUERY TO AHR COULD SERVICE
         function startLPR(scannerId, path) {
-            console.log("START LPR : "+  path )
+            console.log("START LPR : " + path)
             urlToObject("assets/lprsnaps/" + path, scannerId).then(function() {
                 const formData = new FormData();
                 formData.append('service', 'anpr,mmr');
@@ -527,6 +527,26 @@
                 startLPR(2, path)
             });*/
             $.ajax({
+                type: "POST",
+                url: 'grab.php',
+                data: {
+                    contrast: 1.0,
+                    brightness: 0,
+                    hist_eq_intensity: 0.5,
+                    picturename: picturename,
+                    ip_address: ip,
+                    duration: 3,
+                    crop: 3
+                },
+                success: function(response) {
+                    console.log(response); // Here you'll see the output from your PHP script
+                    // Further processing here
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    console.error("Error: ", errorThrown);
+                }
+            });
+            /*$.ajax({
                 url: 'http://localhost:5000/grab_images',
                 type: 'POST',
                 data: {
@@ -547,7 +567,7 @@
                 error: function(error) {
                     console.error("Error during image grabbing:", error);
                 }
-            });
+            });*/
         }
 
         //CHANGING LETTER TO FRENCH

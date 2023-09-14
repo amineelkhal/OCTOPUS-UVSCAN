@@ -21,3 +21,5 @@
         border: 2px solid #fff;
     }
 </style>
+<!-- JQUERY JS -->
+<script src="assets/js/jquery.min.js"></script>

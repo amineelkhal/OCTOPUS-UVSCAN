@@ -385,7 +385,7 @@
                     window[scanStatusVar] = 'scanning';
                     const pictureName = `10-10-${scannerId}-12-${Date.now()}.jpg`;
 
-                    startGrabbing(pictureName, ip + ".11");
+                    startGrabbing(pictureName, scannerId);
                     $.get(`snaplpr.php?ip=${ip}.12&name=${pictureName}`, function(path) {
                         console.log(path);
                         startLPR(scannerId, pictureName);
@@ -521,12 +521,52 @@
         }
 
         //GRABBER
-        function startGrabbing(picturename, ip) {
+        function startGrabbing(picturename, scannerid) {
             console.log("Start Grabbing");
+
+            $.ajax({
+                url: 'get_scanner_params.php?scannerid=' + scannerid,
+                method: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    if (data.status && data.status === 'error') {
+                        console.error(data.message);
+                        return;
+                    }
+
+                    // Now, pass these parameters to the Python script through another AJAX request
+                    $.ajax({
+                        url: 'grab.php', // The PHP script that runs the Python code
+                        method: 'POST',
+                        data: {
+                            contrast: data.contrast,
+                            brightness: data.brightness,
+                            hist_eq_intensity: data.hist_eq_intensity,
+                            picturename: data.picturename,
+                            ip_address: data.ip_address,
+                            duration: data.duration,
+                            crop: data.crop
+                        },
+                        dataType: 'json',
+                        success: function(response) {
+                            // Handle the response from the Python script here
+                            console.log(response);
+                        },
+                        error: function(error) {
+                            console.error("Error:", error);
+                        }
+                    });
+                },
+                error: function(error) {
+                    console.error("Failed to fetch parameters:", error);
+                }
+            });
+
+
             /*$.get('snaplpr.php?ip=10.10.3.12', function(path) {
                 startLPR(2, path)
             });*/
-            $.ajax({
+            /*$.ajax({
                 type: "POST",
                 url: 'grab.php',
                 data: {
@@ -545,7 +585,7 @@
                 error: function(jqXHR, textStatus, errorThrown) {
                     console.error("Error: ", errorThrown);
                 }
-            });
+            });*/
             /*$.ajax({
                 url: 'http://localhost:5000/grab_images',
                 type: 'POST',
@@ -706,7 +746,7 @@
         }
 
         // Poll every 30 seconds (adjust as necessary).
-        setInterval(checkForUpdates, 5000);
+        setInterval(checkForUpdates, 3000);
     </script>
 </body>
 

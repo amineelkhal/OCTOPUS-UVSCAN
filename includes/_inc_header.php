@@ -49,6 +49,9 @@
                                 <a class="nav-link icon full-screen-link nav-link-bg">
                                     <i class="fe fe-minimize fullscreen-button"></i>
                                 </a>
+                                <a class="nav-link icon nav-link-bg" onclick="window.location.reload();">
+                                    <i class="fe fe-rotate-ccw"></i>
+                                </a>
                             </div>
                         </div>
                     </div>

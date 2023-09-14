@@ -16,6 +16,7 @@
                             <div class="col col-auto">
                                 <div class="lprcam" id="lpr1">
                                     <!--<img width="100%" src="http://10.10.2.12:9901/livepic.mjpeg?id=92">-->
+                                    <img width="100%" src="assets/nolpr.jpg" data-intended-src="http://10.10.2.12:9901/livepic.mjpeg?id=92">
                                 </div>
                             </div>
                         </div>
@@ -30,13 +31,14 @@
                                 <h6 class="">ANPR</h6>
                                 <h4 class="mb-2 number-font">INDIA 5</h4>
                                 <p class="text-muted mb-0">
-                                Loop Status<span id="loopscan2" class="badge bg-danger">OFF</span>
+                                    Loop Status<span id="loopscan2" class="badge bg-danger">OFF</span>
                                 </p>
                                 <input type="file" id="scanImage2" style="display: none;" />
                             </div>
                             <div class="col col-auto">
                                 <div class="lprcam" id="lpr2">
-                                    <!--<img width="100%" src="http://10.10.3.12:9901/livepic.mjpeg?id=92">-->
+                                    <img width="100%" src="assets/nolpr.jpg" data-intended-src="http://10.10.3.12:9901/livepic.mjpeg?id=92">
+                                    <!--<img width="100%" src="http://10.10.3.12:9901/livepic.mjpeg?id=92" onerror="this.onerror=null;this.src='assets/nolpr.jpg';">-->
                                 </div>
                             </div>
                         </div>
@@ -51,13 +53,14 @@
                                 <h6 class="">ANPR</h6>
                                 <h4 class="mb-2 number-font">SPA</h4>
                                 <p class="text-muted mb-0">
-                                Loop Status<span id="loopscan3" class="badge bg-danger">OFF</span>
+                                    Loop Status<span id="loopscan3" class="badge bg-danger">OFF</span>
                                 </p>
                                 <input type="file" id="scanImage3" style="display: none;" />
                             </div>
                             <div class="col col-auto">
                                 <div class="lprcam" id="lpr3">
-                                    <!--<img width="100%" src="http://10.10.1.12:9901/livepic.mjpeg?id=92">-->
+                                    <img width="100%" src="assets/nolpr.jpg" data-intended-src="http://10.10.1.12:9901/livepic.mjpeg?id=92">
+                                    <!--<img width="100%" src="http://10.10.1.12:9901/livepic.mjpeg?id=92" onerror="this.onerror=null;this.src='assets/nolpr.jpg';">-->
                                 </div>
                             </div>
                         </div>
@@ -86,3 +89,45 @@
         </div>
     </div>
 </div>
+
+<script>
+    window.onload = function() {
+        // Function to check the image's accessibility
+        function checkImage(src, successCallback, errorCallback) {
+            let img = new Image();
+            img.onload = successCallback;
+            img.onerror = errorCallback;
+            img.src = src;
+        }
+
+        // Check image accessibility for each image and update the src if accessible
+        function updateImageSrc(imgElement) {
+            let intendedSrc = $(imgElement).data('intended-src'); // Using a 'data-' attribute to store the original/intended src
+            checkImage(intendedSrc,
+                function() {
+                    $(imgElement).attr('src', intendedSrc);
+                },
+                function() {
+                    // Do nothing, or you can also set to a default image 
+                    console.log(imgElement);
+                    $(imgElement).attr('src', "assets/nolpr.jpg");
+                    console.log("No LPR")
+                }
+            );
+        }
+
+        // Iterate over images and check accessibility
+        $('.lprcam img').each(function() {
+            updateImageSrc(this);
+        });
+
+        // Periodically re-check every 5 minutes (300000ms)
+        setInterval(function() {
+            console.log("Checking...")
+            $('.lprcam img').each(function() {
+                updateImageSrc(this);
+            });
+
+        }, 30000);
+    }
+</script>

@@ -119,6 +119,7 @@
                                 <option value="د">د</option>
                                 <option value="و">و</option>
                                 <option value="ط">ط</option>
+                                <option value="ه">ه</option>
                                 <!-- ... other letters ... -->
                             </select>
                         </div>

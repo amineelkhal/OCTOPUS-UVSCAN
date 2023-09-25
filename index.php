@@ -132,9 +132,68 @@
         scanLoop1 = 'off';
         scanLoop2 = 'off';
         scanLoop3 = 'off';
+
         scanStatus1 = 'off';
         scanStatus2 = 'off';
         scanStatus3 = 'off';
+
+        let exdul1 = "10.10.2.10";
+        let exdul2 = "10.10.3.10";
+        let exdul3 = "10.10.1.10";
+
+        let exdul1Reachable = false;
+        let exdul2Reachable = false;
+        let exdul3Reachable = false;
+
+        function checkIPReachability(ip) {
+            return fetch(`http://${ip}/status.xml`, {
+                    method: 'GET',
+                    mode: 'cors',
+                    cache: 'no-cache',
+                    headers: {
+                        'Content-Type': 'application/xml',
+                    },
+                })
+                .then(response => response.ok)
+                .catch(() => false);
+        }
+
+        function updateIPStatus() {
+            console.log("check Exdule reachable...");
+            checkIPReachability(exdul1).then(reachable => exdul1Reachable = reachable);
+            checkIPReachability(exdul2).then(reachable => exdul2Reachable = reachable);
+            checkIPReachability(exdul3).then(reachable => exdul3Reachable = reachable);
+        }
+
+        // Start periodic check every 10 seconds
+        setInterval(updateIPStatus, 10000);
+
+        function setBadgeClass(elementId, value) {
+            let element = document.getElementById(elementId);
+
+            // Remove any existing badge classes
+            element.classList.remove('bg-danger', 'bg-success', 'bg-warning');
+
+            switch (value) {
+                case 0:
+                    element.classList.add('bg-danger');
+                    element.textContent = "OFF";
+                    break;
+                case 1:
+                    element.classList.add('bg-success');
+                    element.textContent = "ON";
+                    break;
+                case 2:
+                    element.classList.add('bg-warning');
+                    element.textContent = "WARN";
+                    break;
+                default:
+                    console.error('Invalid value provided.');
+            }
+        }
+
+        // Usage example:
+        // setBadgeClass("loopscan3", 1);
 
         //FETCH STATISTICS ON LOAD
         fetchStatistics();
@@ -372,7 +431,23 @@
 
             $.get(`readexdul.php?ip=${ip}.10`, function(data) {
                 window[scanLoopVar] = data;
-                $(`#loopscan${scannerId}`).html(data);
+                //$(`#loopscan${scannerId}`).html(data);
+
+                let valueToSend;
+
+                switch (data) {
+                    case 'on':
+                        valueToSend = 1;
+                        break;
+                    case 'off':
+                        valueToSend = 0;
+                        break;
+                    default:
+                        valueToSend = 2; // Treat any unexpected data as a warning
+                }
+
+                // Call setBadgeClass function
+                setBadgeClass("loopscan" + scannerId, valueToSend);
 
                 const borderColor = (data == 'off') ? "2px solid white" : "2px solid green";
                 $(`#lpr${scannerId}`).css({
@@ -397,10 +472,26 @@
         //LOOP READER - EXDUL READER
         if (!isDemo) {
             setInterval(function() {
+
                 //console.log("Not Demo")
-                updateLoopScan(1, "10.10.2");
-                //updateLoopScan(2, "10.10.3");
-                //updateLoopScan(3, "10.10.1.10");
+                if (exdul1Reachable)
+                    updateLoopScan(1, "10.10.2");
+                else {
+                    $(`#loopscan1`).html("OUT");
+                    setBadgeClass("loopscan1", 2);
+                }
+                if (exdul2Reachable)
+                    updateLoopScan(2, "10.10.3");
+                else {
+                    $(`#loopscan2`).html("OUT");
+                    setBadgeClass("loopscan2", 2);
+                }
+                if (exdul3Reachable)
+                    updateLoopScan(3, "10.10.1");
+                else {
+                    $(`#loopscan3`).html("OUT");
+                    setBadgeClass("loopscan3", 2);
+                }
             }, 500);
         }
 

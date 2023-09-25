@@ -109,7 +109,7 @@
                 },
                 function() {
                     // Do nothing, or you can also set to a default image 
-                    console.log(imgElement);
+                    //console.log(imgElement);
                     $(imgElement).attr('src', "assets/nolpr.jpg");
                     console.log("No LPR")
                 }
@@ -128,6 +128,6 @@
                 updateImageSrc(this);
             });
 
-        }, 30000);
+        }, 10000);
     }
 </script>

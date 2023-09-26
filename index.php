@@ -141,8 +141,8 @@
         let exdul2 = "10.10.3.10";
         let exdul3 = "10.10.1.10";
 
-        let exdul1Reachable = false;
-        let exdul2Reachable = false;
+        let exdul1Reachable = true;
+        let exdul2Reachable = true;
         let exdul3Reachable = false;
 
         function checkIPReachability(ip) {
@@ -166,7 +166,7 @@
         }
 
         // Start periodic check every 10 seconds
-        setInterval(updateIPStatus, 10000);
+        //setInterval(updateIPStatus, 10000);
 
         function setBadgeClass(elementId, value) {
             let element = document.getElementById(elementId);
@@ -193,7 +193,7 @@
         }
 
         // Usage example:
-        // setBadgeClass("loopscan3", 1);
+        //setBadgeClass("loopscan3", 1);
 
         //FETCH STATISTICS ON LOAD
         fetchStatistics();
@@ -472,7 +472,6 @@
         //LOOP READER - EXDUL READER
         if (!isDemo) {
             setInterval(function() {
-
                 //console.log("Not Demo")
                 if (exdul1Reachable)
                     updateLoopScan(1, "10.10.2");
@@ -524,8 +523,8 @@
                     body: formData,
                     headers: {
                         'X-Api-Key': 'kYQhj3VUCC9R3QIDtqjif9kFYMl0LCRG3A1MDVvd',
-                        'x-enable-unidentified-license-plate': true,
-                        'x-enable-wide-range-analysis': true
+                        'x-enable-unidentified-license-plate': false,
+                        'x-enable-wide-range-analysis': false
                     },
                 };
                 fetch('https://api.cloud.adaptiverecognition.com/vehicle/afr', options)
@@ -559,7 +558,7 @@
 
                         if (vehicle && vehicle.hasOwnProperty('plate') && vehicle['plate'].hasOwnProperty('separatedText')) {
                             separatedText = vehicle['plate']['separatedText'];
-                            vehicle['plate']['country']
+                            countryText = vehicle['plate']['country']
                         } else {
                             // Handle the case where the properties are not present
                             // You can either set a default value or handle the error accordingly
@@ -613,13 +612,14 @@
 
         //GRABBER
         function startGrabbing(picturename, scannerid) {
-            console.log("Start Grabbing");
+            console.log("Start Grabbing, picture name : " + picturename + " Scanner Id : " + scannerid);
 
             $.ajax({
                 url: 'get_scanner_params.php?scannerid=' + scannerid,
                 method: 'GET',
                 dataType: 'json',
                 success: function(data) {
+                    console.log(data)
                     if (data.status && data.status === 'error') {
                         console.error(data.message);
                         return;
@@ -633,7 +633,7 @@
                             contrast: data.contrast,
                             brightness: data.brightness,
                             hist_eq_intensity: data.hist_eq_intensity,
-                            picturename: data.picturename,
+                            picturename: picturename,
                             ip_address: data.ip_address,
                             duration: data.duration,
                             crop: data.crop

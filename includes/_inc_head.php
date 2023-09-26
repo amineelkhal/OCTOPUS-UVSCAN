@@ -13,13 +13,5 @@
 <link href="assets/css/plugins.css" rel="stylesheet">
 <!--- FONT-ICONS CSS -->
 <link href="assets/css/icons.css" rel="stylesheet">
-<style>
-    .lprcam {
-        width: 176px;
-        height: 100px;
-        background-color: blue;
-        border: 2px solid #fff;
-    }
-</style>
 <!-- JQUERY JS -->
 <script src="assets/js/jquery.min.js"></script>

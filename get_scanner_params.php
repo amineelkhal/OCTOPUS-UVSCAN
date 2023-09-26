@@ -15,7 +15,7 @@ if ($conn->connect_error) {
 $scannerid = isset($_GET['scannerid']) ? $_GET['scannerid'] : null;
 
 if($scannerid) {
-    $sql = "SELECT contrast, brightness, hist_eq_intensity, picturename, ip_address, duration, crop FROM scanner WHERE scannerid = ?";
+    $sql = "SELECT contrast, brightness, hist_eq_intensity, ip_address, duration, crop FROM scanner WHERE scannerid = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $scannerid);  // Assuming scannerid is an integer
     $stmt->execute();
